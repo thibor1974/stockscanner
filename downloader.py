@@ -120,10 +120,12 @@ def apply_filters(df):
         df = df.dropna(subset=["marketCap"])
 
     if cfg["min_market_cap"]:
-        df = df[df["marketCap"] >= cfg["min_market_cap"]]
+        if "marketCap" in df.columns:
+            df = df[df["marketCap"] >= cfg["min_market_cap"]]
 
     if cfg["max_market_cap"]:
-        df = df[df["marketCap"] <= cfg["max_market_cap"]]
+        if "marketCap" in df.columns:
+            df = df[df["marketCap"] <= cfg["max_market_cap"]]
 
     if cfg["sector"]:
         df = df[df["sector"] == cfg["sector"]]
