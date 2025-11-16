@@ -114,6 +114,11 @@ def apply_filters(df):
     """Filter tickers using the CONFIG rules."""
     cfg = CONFIG
 
+    # Ensure 'marketCap' is numeric and handle missing values
+    if "marketCap" in df.columns:
+        df["marketCap"] = pd.to_numeric(df["marketCap"], errors="coerce")
+        df = df.dropna(subset=["marketCap"])
+
     if cfg["min_market_cap"]:
         df = df[df["marketCap"] >= cfg["min_market_cap"]]
 
