@@ -100,7 +100,7 @@ def fetch_fundamentals(tickers):
                 "marketCap": s.get("marketCap"),
                 "sector": p.get("sector"),
                 "industry": p.get("industry"),
-                "avgVolume": s.get("averageVolume"),
+                "avgVolume": s.get("averageVolume"), # Renamed from averageVolume for consistency in filter
                 "price": p.get("regularMarketPrice"),
                 "pe": k.get("trailingPE"),
             })
@@ -133,8 +133,14 @@ def apply_filters(df):
     if cfg["industry"]:
         df = df[df["industry"] == cfg["industry"]]
 
+    # Ensure 'avgVolume' is numeric and handle missing values
+    if "avgVolume" in df.columns:
+        df["avgVolume"] = pd.to_numeric(df["avgVolume"], errors="coerce")
+        df = df.dropna(subset=["avgVolume"])
+
     if cfg["min_volume"]:
-        df = df[df["avgVolume"] >= cfg["min_volume"]]
+        if "avgVolume" in df.columns:
+            df = df[df["avgVolume"] >= cfg["min_volume"]]
 
     if cfg["min_price"]:
         df = df[df["price"] >= cfg["min_price"]]
@@ -154,7 +160,9 @@ def apply_filters(df):
         index_members = get_index_components(index_sym)
         df = df[df["symbol"].isin(index_members)]
 
-    return df.sort_values("marketCap", ascending=False)
+    if "marketCap" in df.columns:
+        return df.sort_values("marketCap", ascending=False)
+    return df
 
 
 # -------------------------
